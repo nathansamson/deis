@@ -1234,13 +1234,13 @@ Make sure that the Controller URI is correct and the server is running.
             version = response.headers['x-deis-release']
             self._logger.info("done, v{}\n".format(version))
             config = response.json()
-            values = config['values']
+            new_values = config['values']
             self._logger.info("=== {}".format(app))
-            items = values.items()
+            items = new_values.items()
             if len(items) == 0:
                 self._logger.info('No configuration')
                 return
-            self._display_configuration(values, oneline=False)
+            self._display_configuration(new_values, oneline=False, highlight=values.keys())
         else:
             raise ResponseError(response)
 
@@ -1289,13 +1289,17 @@ Make sure that the Controller URI is correct and the server is running.
         else:
             raise ResponseError(response)
 
-    def _display_configuration(self, configuration, oneline=False):
+    def _display_configuration(self, configuration, oneline=False, highlight=[]):
         keys = sorted(configuration)
         if not oneline:
             width = max(map(len, keys)) + 5
             for k in keys:
                 k, v = encode(k), encode(configuration[k])
-                self._logger.info(("{k:<" + str(width) + "} {v}").format(**locals()))
+                key = "{k:<" + str(width) + "}"
+                if k in highlight:
+                    self._logger.info(("\033[1m" + key + "\033[0m {v}").format(**locals()))
+                else:
+                    self._logger.info((key + " {v}").format(**locals()))
         else:
             output = []
             for k in keys:

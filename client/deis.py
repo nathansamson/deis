@@ -1207,19 +1207,8 @@ Make sure that the Controller URI is correct and the server is running.
             if len(items) == 0:
                 self._logger.info('No configuration')
                 return
-            keys = sorted(values)
 
-            if not oneline:
-                width = max(map(len, keys)) + 5
-                for k in keys:
-                    k, v = encode(k), encode(values[k])
-                    self._logger.info(("{k:<" + str(width) + "} {v}").format(**locals()))
-            else:
-                output = []
-                for k in keys:
-                    k, v = encode(k), encode(values[k])
-                    output.append("{k}={v}".format(**locals()))
-                self._logger.info(' '.join(output))
+            self._display_configuration(values, oneline=oneline)
         else:
             raise ResponseError(response)
 
@@ -1282,8 +1271,7 @@ Make sure that the Controller URI is correct and the server is running.
             if len(items) == 0:
                 self._logger.info('No configuration')
                 return
-            for k, v in values.items():
-                self._logger.info("{}: {}".format(encode(k), encode(v)))
+            self._display_configuration(values, oneline=False)
         else:
             raise ResponseError(response)
 
@@ -1328,8 +1316,7 @@ Make sure that the Controller URI is correct and the server is running.
             if len(items) == 0:
                 self._logger.info('No configuration')
                 return
-            for k, v in values.items():
-                self._logger.info("{k}: {v}".format(**locals()))
+            self._display_configuration(values, oneline=False)
         else:
             raise ResponseError(response)
 
@@ -1347,6 +1334,20 @@ Make sure that the Controller URI is correct and the server is running.
                 env_dict[k] = v
 
         return env_dict
+
+    def _display_configuration(self, configuration, oneline=False):
+        keys = sorted(configuration)
+        if not oneline:
+            width = max(map(len, keys)) + 5
+            for k in keys:
+                k, v = encode(k), encode(configuration[k])
+                self._logger.info(("{k:<" + str(width) + "} {v}").format(**locals()))
+        else:
+            output = []
+            for k in keys:
+                k, v = encode(k), encode(configuration[k])
+                output.append("{k}={v}".format(**locals()))
+            self._logger.info(' '.join(output))
 
     def config_pull(self, args):
         """

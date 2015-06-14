@@ -410,6 +410,24 @@ class App(UuidAuditedModel):
         escaped_command = command.replace("'", "'\\''")
         return c.run(escaped_command)
 
+    def maintenance_on(self, user):
+        msg = "{} enables miantenance mode {}".format(user.username, self.id)
+        log_event(self, msg)
+        try:
+            _etcd_client.write('/deis/maintenance/{}'.format(self.id), True)
+        except etcd.EtcdException as e:
+            log_event(self, "Something went wrong {}".format(str(e)))
+
+    def maintenance_off(self, user):
+        msg = "{} disables miantenance mode".format(user.username)
+        log_event(self, msg)
+        try:
+            _etcd_client.delete('/deis/maintenance/{}'.format(self.id))
+        except etcd.EtcdException as e:
+            log_event(self, "Something went wrong {}".format(str(e)))
+        except KeyError:
+            pass
+
 
 @python_2_unicode_compatible
 class Container(UuidAuditedModel):

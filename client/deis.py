@@ -1904,6 +1904,46 @@ Make sure that the Controller URI is correct and the server is running.
         else:
             raise ResponseError(response)
 
+    def maintenance_on(self, args, app=None):
+        """
+        Enables maintenance mode on an application.
+
+        Usage: deis maintenance:on [options]
+
+        Options:
+          -a --app=<app>
+            the uniquely identifiable name for the application.
+        """
+        if not app:
+            app = args.get('--app')
+            if not app:
+                app = self._session.app
+        response = self._dispatch('post',
+                                  "/v1/apps/{}/maintenance/on".format("nickel-neckwear"))
+        if response.status_code != requests.codes.ok:
+            raise ResponseError(response)
+        print(response.json())
+
+    def maintenance_off(self, args, app=None):
+        """
+        Disables maintenance mode on an application.
+
+        Usage: deis maintenance:off [options]
+
+        Options:
+          -a --app=<app>
+            the uniquely identifiable name for the application.
+        """
+        if not app:
+            app = args.get('--app')
+            if not app:
+                app = self._session.app
+        response = self._dispatch('post',
+                                  "/v1/apps/{}/maintenance/off".format(app))
+        if response.status_code != requests.codes.ok:
+            raise ResponseError(response)
+        print(response.json())
+
     def tags(self, args):
         """
         Valid commands for tags:
